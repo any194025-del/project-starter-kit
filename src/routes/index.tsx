@@ -1,14 +1,12 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { InvitationRenderer } from "@/renderer/InvitationRenderer";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { DEFAULT_SLUG } from "@/data/mock/invitations";
 
 export const Route = createFileRoute("/")({
-  component: Index,
+  beforeLoad: () => {
+    // Landing → default invitation preview (no specific guest)
+    throw redirect({
+      to: "/invite/$slug",
+      params: { slug: DEFAULT_SLUG },
+    });
+  },
 });
-
-function Index() {
-  return (
-    <main className="min-h-[100dvh] w-full bg-black">
-      <InvitationRenderer />
-    </main>
-  );
-}
