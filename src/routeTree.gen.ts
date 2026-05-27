@@ -10,33 +10,52 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as InviteSlugRouteImport } from './routes/invite.$slug'
+import { Route as InviteSlugGuestIdRouteImport } from './routes/invite.$slug.$guestId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InviteSlugRoute = InviteSlugRouteImport.update({
+  id: '/invite/$slug',
+  path: '/invite/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InviteSlugGuestIdRoute = InviteSlugGuestIdRouteImport.update({
+  id: '/$guestId',
+  path: '/$guestId',
+  getParentRoute: () => InviteSlugRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/invite/$slug': typeof InviteSlugRouteWithChildren
+  '/invite/$slug/$guestId': typeof InviteSlugGuestIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/invite/$slug': typeof InviteSlugRouteWithChildren
+  '/invite/$slug/$guestId': typeof InviteSlugGuestIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/invite/$slug': typeof InviteSlugRouteWithChildren
+  '/invite/$slug/$guestId': typeof InviteSlugGuestIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/invite/$slug' | '/invite/$slug/$guestId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/invite/$slug' | '/invite/$slug/$guestId'
+  id: '__root__' | '/' | '/invite/$slug' | '/invite/$slug/$guestId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  InviteSlugRoute: typeof InviteSlugRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +67,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/invite/$slug': {
+      id: '/invite/$slug'
+      path: '/invite/$slug'
+      fullPath: '/invite/$slug'
+      preLoaderRoute: typeof InviteSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invite/$slug/$guestId': {
+      id: '/invite/$slug/$guestId'
+      path: '/$guestId'
+      fullPath: '/invite/$slug/$guestId'
+      preLoaderRoute: typeof InviteSlugGuestIdRouteImport
+      parentRoute: typeof InviteSlugRoute
+    }
   }
 }
 
+interface InviteSlugRouteChildren {
+  InviteSlugGuestIdRoute: typeof InviteSlugGuestIdRoute
+}
+
+const InviteSlugRouteChildren: InviteSlugRouteChildren = {
+  InviteSlugGuestIdRoute: InviteSlugGuestIdRoute,
+}
+
+const InviteSlugRouteWithChildren = InviteSlugRoute._addFileChildren(
+  InviteSlugRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  InviteSlugRoute: InviteSlugRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

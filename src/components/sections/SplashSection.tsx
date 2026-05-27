@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { SectionComponentProps } from "@/types/invitation";
 import { useInvitationStore } from "@/context/invitationStore";
 import { useAudio } from "@/components/audio/AudioProvider";
+import { usePersonalization } from "@/hooks/usePersonalization";
 import { OpenInvitationButton } from "./OpenInvitationButton";
 
 interface SplashData {
@@ -23,6 +24,7 @@ export function SplashSection({ section }: SectionComponentProps) {
   const open = useInvitationStore((s) => s.open);
   const next = useInvitationStore((s) => s.next);
   const { play } = useAudio();
+  const personal = usePersonalization();
 
   const [exiting, setExiting] = useState(false);
 
@@ -82,16 +84,43 @@ export function SplashSection({ section }: SectionComponentProps) {
             </motion.p>
           ) : null}
 
+          {/* Personalised greeting block */}
+          <motion.div
+            className="mt-5 flex flex-col items-center"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.1, delay: 0.7 }}
+          >
+            <p
+              className="text-[13px] tracking-[0.18em] text-amber-100/85"
+              style={{ fontFamily: "'Noto Serif Devanagari', serif" }}
+            >
+              {personal.greeting}
+            </p>
+            <p
+              className="mt-2 text-lg text-amber-50/95"
+              style={{ fontFamily: "'Cormorant Garamond', serif" }}
+            >
+              {personal.displayName}
+            </p>
+            {personal.family ? (
+              <p className="mt-1 text-[10px] uppercase tracking-[0.32em] text-amber-100/55">
+                {personal.family}
+                {personal.parivarLabel ? ` · ${personal.parivarLabel}` : ""}
+              </p>
+            ) : null}
+          </motion.div>
+
           {data.welcomeSubtitle ? (
             <motion.h1
-              className="mt-4 text-4xl font-light tracking-[0.15em] text-amber-50"
+              className="mt-6 text-4xl font-light tracking-[0.15em] text-amber-50"
               style={{
                 fontFamily: "'Cormorant Garamond', 'Playfair Display', serif",
                 textShadow: "0 0 30px rgba(255,210,140,0.35)",
               }}
               initial={{ opacity: 0, y: 14, letterSpacing: "0.35em" }}
               animate={{ opacity: 1, y: 0, letterSpacing: "0.15em" }}
-              transition={{ duration: 1.6, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 1.6, delay: 1.0, ease: [0.22, 1, 0.36, 1] }}
             >
               {data.welcomeSubtitle}
             </motion.h1>
@@ -101,7 +130,7 @@ export function SplashSection({ section }: SectionComponentProps) {
             className="mt-5 h-px w-24 bg-gradient-to-r from-transparent via-amber-200/60 to-transparent"
             initial={{ scaleX: 0, opacity: 0 }}
             animate={{ scaleX: 1, opacity: 1 }}
-            transition={{ duration: 1.2, delay: 1.4 }}
+            transition={{ duration: 1.2, delay: 1.5 }}
           />
 
           {data.welcomeDescription ? (
@@ -109,7 +138,7 @@ export function SplashSection({ section }: SectionComponentProps) {
               className="mt-5 max-w-[28ch] text-[13px] leading-relaxed text-white/70"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 1.2, delay: 1.6 }}
+              transition={{ duration: 1.2, delay: 1.7 }}
             >
               {data.welcomeDescription}
             </motion.p>

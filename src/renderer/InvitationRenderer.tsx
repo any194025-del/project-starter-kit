@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
-import { loadInvitation, extractSections } from "./loadInvitation";
+import { extractSections } from "./loadInvitation";
 import { resolveSectionComponent } from "./sectionRegistry";
 import type { InvitationDocument, InvitationSection } from "@/types/invitation";
+import type { Guest } from "@/types/guest";
 import { useInvitationStore } from "@/context/invitationStore";
 import { SectionContainer } from "@/components/layout/SectionContainer";
 import { PageTransition } from "@/components/layout/PageTransition";
@@ -10,14 +11,16 @@ import { SectionNavButtons } from "@/components/navigation/SectionNavButtons";
 import { AudioProvider } from "@/components/audio/AudioProvider";
 import { MusicButton } from "@/components/audio/MusicButton";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
-import { Preloader } from "@/components/layout/Preloader";
+import { RsvpButton } from "@/components/rsvp/RsvpButton";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface Props {
-  /** Optional: pass a pre-loaded document (e.g. from a Supabase loader later). */
-  document?: InvitationDocument;
+  /** Already-resolved invitation document (from a route loader / service). */
+  document: InvitationDocument;
+  /** Optional resolved guest. Personalisation gracefully degrades when absent. */
+  guest?: Guest | null;
 }
 
-/** Collect candidate image URLs from a section's background + data shape. */
 function collectSectionImages(section: InvitationSection | undefined): string[] {
   if (!section) return [];
   const urls: string[] = [];
@@ -37,7 +40,6 @@ function collectSectionImages(section: InvitationSection | undefined): string[] 
   return urls;
 }
 
-/** Fire-and-forget image preloads. Browser dedupes by URL via cache. */
 function preloadImages(urls: string[]) {
   for (const u of urls) {
     if (!u) continue;
@@ -47,41 +49,54 @@ function preloadImages(urls: string[]) {
   }
 }
 
-export function InvitationRenderer({ document: docProp }: Props) {
-  const [doc, setDoc] = useState<InvitationDocument | null>(docProp ?? null);
-  const setAssetState = useInvitationStore((s) => s.setAssetState);
+/**
+ * Pure renderer — consumes resolved data, does not fetch.
+ * Route loaders (or external orchestration) call the service layer and pass
+ * results in via props. The store is hydrated from props so deep components
+ * can use `usePersonalization()` and `useAnalytics()` without prop drilling.
+ */
+export function InvitationRenderer({ document, guest = null }: Props) {
   const setTotal = useInvitationStore((s) => s.setTotal);
+  const setInvitation = useInvitationStore((s) => s.setInvitation);
+  const setGuest = useInvitationStore((s) => s.setGuest);
+  const setAccessState = useInvitationStore((s) => s.setAccessState);
   const currentIndex = useInvitationStore((s) => s.currentIndex);
+  const opened = useInvitationStore((s) => s.opened);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   useSwipeNavigation(rootRef);
+  const { track } = useAnalytics();
 
+  // Hydrate global store from props.
   useEffect(() => {
-    if (docProp) return;
-    let cancelled = false;
-    setAssetState("loading");
-    loadInvitation()
-      .then((d) => {
-        if (cancelled) return;
-        setDoc(d);
-        setAssetState("ready");
-      })
-      .catch(() => !cancelled && setAssetState("error"));
-    return () => {
-      cancelled = true;
-    };
-  }, [docProp, setAssetState]);
+    setInvitation(document);
+    setGuest(guest);
+    setAccessState("ready");
+  }, [document, guest, setInvitation, setGuest, setAccessState]);
 
   const sections: InvitationSection[] = useMemo(
-    () => (doc ? extractSections(doc) : []),
-    [doc],
+    () => extractSections(document),
+    [document],
   );
 
   useEffect(() => {
     setTotal(sections.length);
   }, [sections.length, setTotal]);
 
-  // Progressive preload: current + next + previous.
+  // Section-view analytics
+  useEffect(() => {
+    if (!opened) return;
+    const s = sections[currentIndex];
+    if (s) track("section_viewed", { type: s.type, index: currentIndex });
+  }, [opened, currentIndex, sections, track]);
+
+  // Fire opened event once
+  useEffect(() => {
+    if (opened) track("invitation_opened");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opened]);
+
+  // Progressive preload: current + neighbours
   useEffect(() => {
     if (sections.length === 0) return;
     const targets = [
@@ -89,20 +104,15 @@ export function InvitationRenderer({ document: docProp }: Props) {
       sections[currentIndex + 1],
       sections[currentIndex - 1],
     ];
-    const urls = targets.flatMap(collectSectionImages);
-    preloadImages(urls);
+    preloadImages(targets.flatMap(collectSectionImages));
   }, [sections, currentIndex]);
-
-  if (!doc) {
-    return <Preloader label="Preparing" />;
-  }
 
   const safeIndex = Math.min(currentIndex, sections.length - 1);
   const active = sections[safeIndex];
   const SectionComponent = active ? resolveSectionComponent(active.type) : null;
 
   return (
-    <AudioProvider src={doc.meta.audioUrl || undefined}>
+    <AudioProvider src={document.meta.audioUrl || undefined}>
       <div
         ref={rootRef}
         className="relative mx-auto h-[100dvh] w-full max-w-[480px] overflow-hidden bg-black select-none"
@@ -129,6 +139,7 @@ export function InvitationRenderer({ document: docProp }: Props) {
 
         <SectionNavButtons />
         <MusicButton />
+        <RsvpButton />
       </div>
     </AudioProvider>
   );
