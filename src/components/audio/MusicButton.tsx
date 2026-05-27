@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Disc3, Pause } from "lucide-react";
+import { Disc3, Music } from "lucide-react";
 import { useAudio } from "./AudioProvider";
 import { useInvitationStore } from "@/context/invitationStore";
 
@@ -61,7 +61,7 @@ export function MusicButton() {
           {playing ? (
             <Disc3 className="h-5 w-5 lov-spin-slow" />
           ) : (
-            <Pause className="h-4 w-4 opacity-80" />
+            <Music className="h-4 w-4 opacity-85" />
           )}
         </motion.span>
       </AnimatePresence>
