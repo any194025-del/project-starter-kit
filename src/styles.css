@@ -142,3 +142,21 @@
     color: var(--color-foreground);
   }
 }
+
+/* Phase 4 — global motion + shimmer utilities */
+@keyframes lov-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@keyframes lov-spin-slow {
+  to { transform: rotate(360deg); }
+}
+.lov-spin-slow { animation: lov-spin-slow 8s linear infinite; }
+
+/* Improve mobile tap-feel globally */
+button, a { -webkit-tap-highlight-color: transparent; }
+
+/* Prefers reduced motion: drop heavy motion */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
