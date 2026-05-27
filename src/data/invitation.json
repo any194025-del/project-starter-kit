@@ -1,0 +1,240 @@
+{
+  "id": "demo-invitation",
+  "templateId": "default",
+  "meta": {
+    "coupleNames": "Aarav & Bhavya",
+    "weddingDate": "2026-12-12T18:00:00Z",
+    "audioUrl": ""
+  },
+  "pages": {
+    "one_splash": {
+      "order": 1,
+      "type": "splash",
+      "background": {
+        "overlay": "linear-gradient(180deg, rgba(8,4,16,0.55) 0%, rgba(8,4,16,0.85) 100%)"
+      },
+      "transition": "cinematicFade",
+      "data": {
+        "welcomeTitle": "With the blessings of the divine",
+        "welcomeSubtitle": "Aarav & Bhavya",
+        "welcomeDescription": "We invite you to share in the joy of our union — a cinematic celebration of love, light, and togetherness.",
+        "ctaLabel": "Open Invitation",
+        "loadingLabel": "Opening"
+      }
+    },
+    "two_countdown": {
+      "order": 2,
+      "type": "countdown",
+      "background": {
+        "gradient": "radial-gradient(120% 80% at 50% 20%, #2a1638 0%, #150a22 55%, #06030d 100%)",
+        "overlay": "radial-gradient(60% 50% at 50% 50%, rgba(255,200,140,0.08), transparent 70%)"
+      },
+      "transition": "fadeUp",
+      "data": {
+        "eyebrow": "Save the Date",
+        "title": "Counting Down",
+        "targetDate": "2026-12-12T18:00:00Z",
+        "weddingDateText": "Saturday, 12 December 2026",
+        "weddingTimeText": "Evening · 6:00 PM onwards"
+      }
+    },
+    "three_gallery": {
+      "order": 3,
+      "type": "gallery",
+      "background": {
+        "gradient": "linear-gradient(180deg, #0a0612 0%, #160a26 100%)"
+      },
+      "transition": "revealBlur",
+      "data": {
+        "eyebrow": "Our Story",
+        "title": "Aarav & Bhavya",
+        "description": "From two strangers to one journey — a few of our favourite moments together.",
+        "images": [
+          { "src": "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=70", "caption": "The proposal" },
+          { "src": "https://images.unsplash.com/photo-1529634597503-139d3726fed5?auto=format&fit=crop&w=700&q=70" },
+          { "src": "https://images.unsplash.com/photo-1583939003579-730e3918a45a?auto=format&fit=crop&w=700&q=70" },
+          { "src": "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=900&q=70", "caption": "Forever" },
+          { "src": "https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=700&q=70" },
+          { "src": "https://images.unsplash.com/photo-1525258946800-98cfd641d0de?auto=format&fit=crop&w=700&q=70" }
+        ]
+      }
+    },
+    "four_video": {
+      "order": 4,
+      "type": "video",
+      "background": {
+        "gradient": "linear-gradient(180deg, #0c0418 0%, #1a0a2e 100%)"
+      },
+      "transition": "softScale",
+      "data": {
+        "eyebrow": "Pre-Wedding Film",
+        "title": "Our Story in Motion",
+        "description": "A short cinematic glimpse into our journey together.",
+        "thumbnail": "https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=1200&q=70",
+        "youtubeUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "duration": "2:14"
+      }
+    },
+    "five_events": {
+      "order": 5,
+      "type": "events",
+      "background": {
+        "gradient": "linear-gradient(180deg, #0a0612 0%, #1c0f30 100%)"
+      },
+      "transition": "staggerCards",
+      "data": {
+        "eyebrow": "Celebrations",
+        "title": "Wedding Events",
+        "description": "Join us across these moments of joy.",
+        "events": [
+          {
+            "title": "Mehendi",
+            "date": "10 Dec 2026",
+            "time": "4:00 PM",
+            "place": "The Garden Pavilion, Jaipur",
+            "notes": "An evening of henna, colour and laughter.",
+            "image": "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=900&q=70"
+          },
+          {
+            "title": "Sangeet",
+            "date": "11 Dec 2026",
+            "time": "7:00 PM",
+            "place": "Crystal Ballroom, Rambagh",
+            "notes": "Music, dance and family choreographies.",
+            "image": "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?auto=format&fit=crop&w=900&q=70"
+          },
+          {
+            "title": "Wedding Ceremony",
+            "date": "12 Dec 2026",
+            "time": "6:00 PM",
+            "place": "Amber Fort Lawns",
+            "notes": "The sacred vows under starlight.",
+            "image": "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=900&q=70"
+          },
+          {
+            "title": "Reception",
+            "date": "13 Dec 2026",
+            "time": "8:00 PM",
+            "place": "Sheesh Mahal",
+            "notes": "Dinner, drinks and dancing into the night."
+          }
+        ]
+      }
+    },
+    "six_venue": {
+      "order": 6,
+      "type": "venue",
+      "background": {
+        "gradient": "linear-gradient(180deg, #0a0612 0%, #160a26 100%)"
+      },
+      "transition": "cinematicFade",
+      "data": {
+        "eyebrow": "The Venue",
+        "title": "Amber Fort Lawns",
+        "name": "Amber Fort Lawns",
+        "address": "Devisinghpura, Amer, Jaipur, Rajasthan 302001",
+        "date": "12 December 2026",
+        "time": "6:00 PM onwards",
+        "notes": "Ample parking · valet available",
+        "image": "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=1200&q=70",
+        "mapUrl": "https://maps.google.com/?q=Amber+Fort+Jaipur",
+        "phone": "+919999999999"
+      }
+    },
+    "seven_guests": {
+      "order": 7,
+      "type": "guests",
+      "background": {
+        "gradient": "linear-gradient(180deg, #0a0612 0%, #1a0a2e 100%)"
+      },
+      "transition": "staggerCards",
+      "data": {
+        "eyebrow": "Our Families",
+        "title": "With Blessings From",
+        "groups": [
+          {
+            "title": "Bride's Family",
+            "members": [
+              { "name": "Mr. Ramesh Sharma", "relation": "Father of the Bride", "phone": "+919999111111" },
+              { "name": "Mrs. Sunita Sharma", "relation": "Mother of the Bride" },
+              { "name": "Riya Sharma", "relation": "Sister of the Bride" }
+            ]
+          },
+          {
+            "title": "Groom's Family",
+            "members": [
+              { "name": "Mr. Anil Verma", "relation": "Father of the Groom", "phone": "+919999222222" },
+              { "name": "Mrs. Meera Verma", "relation": "Mother of the Groom" },
+              { "name": "Arjun Verma", "relation": "Brother of the Groom" }
+            ]
+          }
+        ]
+      }
+    },
+    "eight_wishes": {
+      "order": 8,
+      "type": "wishes",
+      "background": {
+        "gradient": "linear-gradient(180deg, #0a0612 0%, #160a26 100%)"
+      },
+      "transition": "staggerCards",
+      "data": {
+        "eyebrow": "From Loved Ones",
+        "title": "Wishes & Blessings",
+        "messages": [
+          {
+            "from": "Dadi Ma",
+            "relation": "Grandmother",
+            "category": "blessing",
+            "message": "May your home be filled with laughter, your hearts with love, and your journey with light."
+          },
+          {
+            "from": "Riya",
+            "relation": "Sister",
+            "category": "family",
+            "message": "Watching you grow into this moment has been my quiet joy. Wishing you forever."
+          },
+          {
+            "from": "Kabir",
+            "relation": "Best Friend",
+            "category": "friend",
+            "message": "From late-night chai to this — couldn't be happier for you both."
+          }
+        ]
+      }
+    },
+    "nine_note": {
+      "order": 9,
+      "type": "note",
+      "background": {
+        "gradient": "linear-gradient(180deg, #0a0612 0%, #150a24 100%)"
+      },
+      "transition": "fadeUp",
+      "data": {
+        "eyebrow": "A Gentle Note",
+        "title": "Please Note",
+        "paragraphs": [
+          "We kindly request you to dress in traditional attire to honour the occasion.",
+          "In keeping with eco-conscious celebrations, we request no plastic-wrapped gifts.",
+          "Your presence is the greatest blessing we could ask for."
+        ]
+      }
+    },
+    "ten_thanks": {
+      "order": 10,
+      "type": "thanks",
+      "background": {
+        "gradient": "radial-gradient(120% 80% at 50% 30%, #2a1638 0%, #150a22 50%, #06030d 100%)",
+        "overlay": "radial-gradient(50% 50% at 50% 50%, rgba(255,200,140,0.10), transparent 70%)"
+      },
+      "transition": "revealBlur",
+      "data": {
+        "eyebrow": "With Gratitude",
+        "title": "Thank You",
+        "message": "For sharing in our happiness — for the love, the laughter, and the blessings.",
+        "closing": "We can't wait to celebrate with you.",
+        "signature": "Aarav & Bhavya"
+      }
+    }
+  }
+}
