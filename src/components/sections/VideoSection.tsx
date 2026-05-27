@@ -92,7 +92,7 @@ export function VideoSection({ section }: SectionComponentProps) {
       <AnimatePresence>
         {open ? (
           <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4"
+            data-no-swipe className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
