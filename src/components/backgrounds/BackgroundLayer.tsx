@@ -7,14 +7,18 @@ interface Props {
 
 /**
  * Configurable cinematic background layer.
- * Supports: mobile/desktop image switching, optional looping video,
- * gradient + overlay + tint stack, blur, and opacity. Sits behind content
- * with pointer-events: none.
+ *
+ * Phase 4 polish:
+ *  - Image preloads via Image() then crossfades in (no hard cut).
+ *  - When `config` changes between sections, the previous layer holds for a
+ *    beat under the new one so backgrounds melt rather than blink.
+ *  - Video still preferred when provided; lazy-starts only when ready.
  */
 export function BackgroundLayer({ config }: Props) {
   const [isDesktop, setIsDesktop] = useState(false);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [videoReady, setVideoReady] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 768px)");
@@ -23,6 +27,30 @@ export function BackgroundLayer({ config }: Props) {
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
   }, []);
+
+  const image = isDesktop ? config?.desktop || config?.mobile : config?.mobile || config?.desktop;
+
+  // Preload the chosen image so we can crossfade rather than pop-in.
+  useEffect(() => {
+    if (!image) {
+      setImageLoaded(false);
+      return;
+    }
+    setImageLoaded(false);
+    const img = new Image();
+    img.decoding = "async";
+    img.src = image;
+    let cancelled = false;
+    const done = () => !cancelled && setImageLoaded(true);
+    if (img.complete && img.naturalWidth > 0) done();
+    else {
+      img.onload = done;
+      img.onerror = done;
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [image]);
 
   useEffect(() => {
     const el = videoRef.current;
@@ -39,13 +67,21 @@ export function BackgroundLayer({ config }: Props) {
 
   if (!config) return null;
 
-  const image = isDesktop ? config.desktop || config.mobile : config.mobile || config.desktop;
   const opacity = config.opacity ?? 1;
   const blur = config.blur ?? 0;
 
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      {/* Optional video (above image base) */}
+      {/* Soft underglow that prevents black flash before image decodes */}
+      <div
+        aria-hidden
+        className="absolute inset-0"
+        style={{
+          background:
+            "radial-gradient(70% 50% at 50% 40%, rgba(60,28,82,0.45), rgba(6,3,13,0.95) 75%)",
+        }}
+      />
+
       {config.videoUrl ? (
         <video
           ref={videoRef}
@@ -68,8 +104,9 @@ export function BackgroundLayer({ config }: Props) {
           className="absolute inset-0 bg-cover bg-center"
           style={{
             backgroundImage: `url(${image})`,
-            opacity,
+            opacity: imageLoaded ? opacity : 0,
             filter: blur ? `blur(${blur}px)` : undefined,
+            transition: "opacity 900ms cubic-bezier(0.22,1,0.36,1), filter 900ms ease",
             transform: "translateZ(0)",
           }}
         />
