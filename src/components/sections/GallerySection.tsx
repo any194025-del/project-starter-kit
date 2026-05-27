@@ -13,6 +13,7 @@ import {
   staggerCardsVariants,
   staggerItemVariants,
 } from "@/animations/presets";
+import { ProgressiveImage } from "@/components/ui/ProgressiveImage";
 
 interface GalleryImage {
   src: string;
@@ -46,38 +47,41 @@ export function GallerySection({ section }: SectionComponentProps) {
           animate="animate"
           className="mt-4 grid w-full grid-cols-2 gap-2.5"
         >
-          {images.map((img, i) => (
-            <motion.button
-              key={i}
-              type="button"
-              variants={staggerItemVariants}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setOpen(i)}
-              className={
-                "group relative overflow-hidden rounded-xl border border-amber-100/15 " +
-                "bg-white/[0.03] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.6)] " +
-                (i % 3 === 0 ? "col-span-2 aspect-[16/10]" : "aspect-square")
-              }
-              style={{ WebkitTapHighlightColor: "transparent" }}
-            >
-              <img
-                src={img.src}
-                alt={img.alt ?? ""}
-                loading="lazy"
-                decoding="async"
-                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-active:scale-[1.02]"
-              />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
-              {img.caption ? (
-                <span
-                  className="absolute bottom-2 left-2 text-[10px] tracking-[0.2em] uppercase text-amber-50/90"
-                  style={{ fontFamily: "'Inter',sans-serif" }}
-                >
-                  {img.caption}
-                </span>
-              ) : null}
-            </motion.button>
-          ))}
+          {images.map((img, i) => {
+            const span2 = i % 3 === 0;
+            return (
+              <motion.button
+                key={i}
+                type="button"
+                variants={staggerItemVariants}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setOpen(i)}
+                className={
+                  "group relative overflow-hidden rounded-xl border border-amber-100/15 " +
+                  "bg-white/[0.03] shadow-[0_8px_24px_-12px_rgba(0,0,0,0.6)] " +
+                  (span2 ? "col-span-2" : "")
+                }
+                style={{ WebkitTapHighlightColor: "transparent" }}
+              >
+                <ProgressiveImage
+                  src={img.src}
+                  alt={img.alt ?? ""}
+                  ratio={span2 ? "16/10" : "1/1"}
+                  eager={i < 2}
+                  className="transition-transform duration-700 group-active:scale-[1.02]"
+                />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-transparent" />
+                {img.caption ? (
+                  <span
+                    className="absolute bottom-2 left-2 text-[10px] tracking-[0.2em] uppercase text-amber-50/90"
+                    style={{ fontFamily: "'Inter',sans-serif" }}
+                  >
+                    {img.caption}
+                  </span>
+                ) : null}
+              </motion.button>
+            );
+          })}
         </motion.div>
       ) : (
         <Body className="mt-4 opacity-60">Gallery images will appear here.</Body>
@@ -106,7 +110,7 @@ function Lightbox({
     <AnimatePresence>
       {img ? (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+          data-no-swipe className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}

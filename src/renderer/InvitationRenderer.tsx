@@ -17,6 +17,36 @@ interface Props {
   document?: InvitationDocument;
 }
 
+/** Collect candidate image URLs from a section's background + data shape. */
+function collectSectionImages(section: InvitationSection | undefined): string[] {
+  if (!section) return [];
+  const urls: string[] = [];
+  const bg = section.background;
+  if (bg?.mobile) urls.push(bg.mobile);
+  if (bg?.desktop) urls.push(bg.desktop);
+  if (bg?.videoPoster) urls.push(bg.videoPoster);
+  const d = section.data as Record<string, unknown> | undefined;
+  if (d) {
+    if (typeof d.thumbnail === "string") urls.push(d.thumbnail);
+    if (Array.isArray(d.images)) {
+      for (const im of d.images as Array<{ src?: string }>) {
+        if (im && typeof im.src === "string") urls.push(im.src);
+      }
+    }
+  }
+  return urls;
+}
+
+/** Fire-and-forget image preloads. Browser dedupes by URL via cache. */
+function preloadImages(urls: string[]) {
+  for (const u of urls) {
+    if (!u) continue;
+    const img = new Image();
+    img.decoding = "async";
+    img.src = u;
+  }
+}
+
 export function InvitationRenderer({ document: docProp }: Props) {
   const [doc, setDoc] = useState<InvitationDocument | null>(docProp ?? null);
   const setAssetState = useInvitationStore((s) => s.setAssetState);
@@ -51,6 +81,18 @@ export function InvitationRenderer({ document: docProp }: Props) {
     setTotal(sections.length);
   }, [sections.length, setTotal]);
 
+  // Progressive preload: current + next + previous.
+  useEffect(() => {
+    if (sections.length === 0) return;
+    const targets = [
+      sections[currentIndex],
+      sections[currentIndex + 1],
+      sections[currentIndex - 1],
+    ];
+    const urls = targets.flatMap(collectSectionImages);
+    preloadImages(urls);
+  }, [sections, currentIndex]);
+
   if (!doc) {
     return <Preloader label="Preparing" />;
   }
@@ -63,13 +105,14 @@ export function InvitationRenderer({ document: docProp }: Props) {
     <AudioProvider src={doc.meta.audioUrl || undefined}>
       <div
         ref={rootRef}
-        className="relative mx-auto h-[100dvh] w-full max-w-[480px] overflow-hidden bg-black"
+        className="relative mx-auto h-[100dvh] w-full max-w-[480px] overflow-hidden bg-black select-none"
+        style={{ touchAction: "pan-y" }}
       >
         <AnimatePresence mode="wait" initial={false}>
           {active && SectionComponent ? (
             <PageTransition
               key={active.key}
-              preset={active.transition ?? "fade"}
+              preset={active.transition ?? "cinematicFade"}
               className="absolute inset-0"
             >
               <SectionContainer background={active.background}>

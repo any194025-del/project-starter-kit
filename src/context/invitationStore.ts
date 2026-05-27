@@ -9,6 +9,8 @@ interface InvitationState {
   audioPlaying: boolean;
   audioReady: boolean;
   assetState: AssetLoadState;
+  /** Updated by SectionContainer; consumed by floating chrome for adaptive visibility. */
+  scrolling: boolean;
 
   setTotal: (n: number) => void;
   goTo: (i: number) => void;
@@ -18,6 +20,7 @@ interface InvitationState {
   setAudioPlaying: (v: boolean) => void;
   setAudioReady: (v: boolean) => void;
   setAssetState: (s: AssetLoadState) => void;
+  setScrolling: (v: boolean) => void;
 }
 
 export const useInvitationStore = create<InvitationState>((set, get) => ({
@@ -27,6 +30,7 @@ export const useInvitationStore = create<InvitationState>((set, get) => ({
   audioPlaying: false,
   audioReady: false,
   assetState: "idle",
+  scrolling: false,
 
   setTotal: (n) => set({ totalSections: n }),
   goTo: (i) => {
@@ -41,4 +45,5 @@ export const useInvitationStore = create<InvitationState>((set, get) => ({
   setAudioPlaying: (v) => set({ audioPlaying: v }),
   setAudioReady: (v) => set({ audioReady: v }),
   setAssetState: (s) => set({ assetState: s }),
+  setScrolling: (v) => set({ scrolling: v }),
 }));
