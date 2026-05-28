@@ -231,7 +231,7 @@
       "data": {
         "eyebrow": "With Gratitude",
         "title": "Thank You",
-        "message": "For sharing in our happiness — for the love, the laughter, and the blessings.",
+        "message": "{{displayName}}, thank you for sharing in our happiness — for the love, the laughter, and the blessings.",
         "closing": "We can't wait to celebrate with you.",
         "signature": "Aarav & Bhavya"
       }
