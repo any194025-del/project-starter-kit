@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
 import { extractSections } from "./loadInvitation";
 import { resolveSectionComponent } from "./sectionRegistry";
+import { buildTokens, personalizeData } from "./personalize";
 import type { InvitationDocument, InvitationSection } from "@/types/invitation";
 import type { Guest } from "@/types/guest";
 import { useInvitationStore } from "@/context/invitationStore";
@@ -79,6 +80,14 @@ export function InvitationRenderer({ document, guest = null }: Props) {
     [document],
   );
 
+  // Renderer-driven personalization: interpolate `{{token}}` placeholders
+  // in every section's data, once per (document, guest) pair. Sections
+  // remain template-agnostic — they just render their data.
+  const personalisedSections = useMemo<InvitationSection[]>(() => {
+    const tokens = buildTokens(document, guest);
+    return sections.map((s) => ({ ...s, data: personalizeData(s.data, tokens) }));
+  }, [sections, document, guest]);
+
   useEffect(() => {
     setTotal(sections.length);
   }, [sections.length, setTotal]);
@@ -107,8 +116,8 @@ export function InvitationRenderer({ document, guest = null }: Props) {
     preloadImages(targets.flatMap(collectSectionImages));
   }, [sections, currentIndex]);
 
-  const safeIndex = Math.min(currentIndex, sections.length - 1);
-  const active = sections[safeIndex];
+  const safeIndex = Math.min(currentIndex, personalisedSections.length - 1);
+  const active = personalisedSections[safeIndex];
   const SectionComponent = active ? resolveSectionComponent(active.type) : null;
 
   return (
@@ -129,7 +138,7 @@ export function InvitationRenderer({ document, guest = null }: Props) {
                 <SectionComponent
                   section={active}
                   index={safeIndex}
-                  total={sections.length}
+                  total={personalisedSections.length}
                   isActive
                 />
               </SectionContainer>

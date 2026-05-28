@@ -17,7 +17,7 @@
       "data": {
         "welcomeTitle": "With the blessings of the divine",
         "welcomeSubtitle": "Aarav & Bhavya",
-        "welcomeDescription": "We invite you to share in the joy of our union — a cinematic celebration of love, light, and togetherness.",
+        "welcomeDescription": "{{displayName}}, we invite you to share in the joy of our union — a cinematic celebration of love, light, and togetherness.",
         "ctaLabel": "Open Invitation",
         "loadingLabel": "Opening"
       }
@@ -214,7 +214,7 @@
         "eyebrow": "A Gentle Note",
         "title": "Please Note",
         "paragraphs": [
-          "We kindly request you to dress in traditional attire to honour the occasion.",
+          "{{displayName}}, we kindly request you to dress in traditional attire to honour the occasion.",
           "In keeping with eco-conscious celebrations, we request no plastic-wrapped gifts.",
           "Your presence is the greatest blessing we could ask for."
         ]
@@ -231,7 +231,7 @@
       "data": {
         "eyebrow": "With Gratitude",
         "title": "Thank You",
-        "message": "For sharing in our happiness — for the love, the laughter, and the blessings.",
+        "message": "{{displayName}}, thank you for sharing in our happiness — for the love, the laughter, and the blessings.",
         "closing": "We can't wait to celebrate with you.",
         "signature": "Aarav & Bhavya"
       }
