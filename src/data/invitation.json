@@ -214,7 +214,7 @@
         "eyebrow": "A Gentle Note",
         "title": "Please Note",
         "paragraphs": [
-          "We kindly request you to dress in traditional attire to honour the occasion.",
+          "{{displayName}}, we kindly request you to dress in traditional attire to honour the occasion.",
           "In keeping with eco-conscious celebrations, we request no plastic-wrapped gifts.",
           "Your presence is the greatest blessing we could ask for."
         ]
