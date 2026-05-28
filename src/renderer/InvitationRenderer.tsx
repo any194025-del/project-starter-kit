@@ -80,6 +80,14 @@ export function InvitationRenderer({ document, guest = null }: Props) {
     [document],
   );
 
+  // Renderer-driven personalization: interpolate `{{token}}` placeholders
+  // in every section's data, once per (document, guest) pair. Sections
+  // remain template-agnostic — they just render their data.
+  const personalisedSections = useMemo<InvitationSection[]>(() => {
+    const tokens = buildTokens(document, guest);
+    return sections.map((s) => ({ ...s, data: personalizeData(s.data, tokens) }));
+  }, [sections, document, guest]);
+
   useEffect(() => {
     setTotal(sections.length);
   }, [sections.length, setTotal]);
