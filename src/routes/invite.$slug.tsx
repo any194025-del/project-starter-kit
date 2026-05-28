@@ -1,18 +1,40 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { z } from "zod";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { InvitationRenderer } from "@/renderer/InvitationRenderer";
 import { invitationService } from "@/services/invitationService";
+import { guestService } from "@/services/guestService";
 import { ServiceError } from "@/services/_mockDelay";
 import { InvitationFallback } from "@/components/invitation/InvitationFallback";
 import { Preloader } from "@/components/layout/Preloader";
 
-const invitationQuery = (slug: string) =>
+// Allow query-param based guest resolution: /invite/<slug>?g=<guestId>
+// Path-based /invite/<slug>/<guestId> is still preferred for shareable links,
+// but `?g=` enables embedding without rewriting URLs.
+const searchSchema = z.object({
+  g: fallback(z.string().min(1).max(64).optional(), undefined),
+});
+
+const invitationQuery = (slug: string, guestId?: string) =>
   queryOptions({
-    queryKey: ["invitation", slug],
-    queryFn: () => invitationService.getBySlug(slug),
+    queryKey: ["invitation", slug, "g", guestId ?? null],
+    queryFn: async () => {
+      const doc = await invitationService.getBySlug(slug);
+      if (!guestId) return { doc, guest: null };
+      try {
+        const guest = await guestService.getById(doc.id, guestId);
+        return { doc, guest };
+      } catch {
+        // Fallback: invitation still renders generically if guest lookup fails.
+        return { doc, guest: null };
+      }
+    },
   });
 
 export const Route = createFileRoute("/invite/$slug")({
+  validateSearch: zodValidator(searchSchema),
+  loaderDeps: ({ search }) => ({ g: search.g }),
   head: ({ params }) => ({
     meta: [
       { title: `Wedding Invitation · ${params.slug}` },
@@ -27,8 +49,8 @@ export const Route = createFileRoute("/invite/$slug")({
       },
     ],
   }),
-  loader: ({ context, params }) =>
-    context.queryClient.ensureQueryData(invitationQuery(params.slug)),
+  loader: ({ context, params, deps }) =>
+    context.queryClient.ensureQueryData(invitationQuery(params.slug, deps.g)),
   component: InvitationOnlyRoute,
   pendingComponent: () => <Preloader label="Opening" />,
   errorComponent: ({ error }) => (
@@ -49,13 +71,13 @@ export const Route = createFileRoute("/invite/$slug")({
 
 function InvitationOnlyRoute() {
   const { slug } = Route.useParams();
-  const { data: doc } = useSuspenseQuery(invitationQuery(slug));
+  const { g } = Route.useSearch();
+  const { data } = useSuspenseQuery(invitationQuery(slug, g));
   const router = useRouter();
 
   return (
     <main className="min-h-[100dvh] w-full bg-black">
-      <InvitationRenderer document={doc} guest={null} />
-      {/* Tiny dev-only helper: open with a sample guest. */}
+      <InvitationRenderer document={data.doc} guest={data.guest} />
       {import.meta.env.DEV ? (
         <div className="fixed bottom-2 left-1/2 -translate-x-1/2 z-50 flex gap-2 text-[10px]">
           <Link
