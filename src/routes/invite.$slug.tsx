@@ -1,7 +1,5 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { z } from "zod";
-import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { InvitationRenderer } from "@/renderer/InvitationRenderer";
 import { invitationService } from "@/services/invitationService";
 import { guestService } from "@/services/guestService";
@@ -12,9 +10,11 @@ import { Preloader } from "@/components/layout/Preloader";
 // Allow query-param based guest resolution: /invite/<slug>?g=<guestId>
 // Path-based /invite/<slug>/<guestId> is still preferred for shareable links,
 // but `?g=` enables embedding without rewriting URLs.
-const searchSchema = z.object({
-  g: fallback(z.string().min(1).max(64).optional(), undefined),
-});
+const validateInviteSearch = (search: Record<string, unknown>) => {
+  const rawGuestId = search.g;
+  const g = typeof rawGuestId === "string" ? rawGuestId.trim().slice(0, 64) : undefined;
+  return { g: g || undefined };
+};
 
 const invitationQuery = (slug: string, guestId?: string) =>
   queryOptions({
@@ -33,7 +33,7 @@ const invitationQuery = (slug: string, guestId?: string) =>
   });
 
 export const Route = createFileRoute("/invite/$slug")({
-  validateSearch: zodValidator(searchSchema),
+  validateSearch: validateInviteSearch,
   loaderDeps: ({ search }) => ({ g: search.g }),
   head: ({ params }) => ({
     meta: [
