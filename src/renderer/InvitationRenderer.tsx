@@ -138,7 +138,7 @@ export function InvitationRenderer({ document, guest = null }: Props) {
                 <SectionComponent
                   section={active}
                   index={safeIndex}
-                  total={sections.length}
+                  total={personalisedSections.length}
                   isActive
                 />
               </SectionContainer>
