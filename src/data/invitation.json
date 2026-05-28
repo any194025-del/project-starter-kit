@@ -17,7 +17,7 @@
       "data": {
         "welcomeTitle": "With the blessings of the divine",
         "welcomeSubtitle": "Aarav & Bhavya",
-        "welcomeDescription": "We invite you to share in the joy of our union — a cinematic celebration of love, light, and togetherness.",
+        "welcomeDescription": "{{displayName}}, we invite you to share in the joy of our union — a cinematic celebration of love, light, and togetherness.",
         "ctaLabel": "Open Invitation",
         "loadingLabel": "Opening"
       }
