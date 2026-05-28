@@ -116,8 +116,8 @@ export function InvitationRenderer({ document, guest = null }: Props) {
     preloadImages(targets.flatMap(collectSectionImages));
   }, [sections, currentIndex]);
 
-  const safeIndex = Math.min(currentIndex, sections.length - 1);
-  const active = sections[safeIndex];
+  const safeIndex = Math.min(currentIndex, personalisedSections.length - 1);
+  const active = personalisedSections[safeIndex];
   const SectionComponent = active ? resolveSectionComponent(active.type) : null;
 
   return (
