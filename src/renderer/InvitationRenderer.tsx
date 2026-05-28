@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
 import { extractSections } from "./loadInvitation";
 import { resolveSectionComponent } from "./sectionRegistry";
+import { buildTokens, personalizeData } from "./personalize";
 import type { InvitationDocument, InvitationSection } from "@/types/invitation";
 import type { Guest } from "@/types/guest";
 import { useInvitationStore } from "@/context/invitationStore";
