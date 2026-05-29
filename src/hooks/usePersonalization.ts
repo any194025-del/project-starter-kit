@@ -21,6 +21,11 @@ const FALLBACK_GREETING = "आदरणीय अतिथि";
  */
 export function usePersonalization(): Personalization {
   const guest = useInvitationStore((s) => s.guest);
+  if (typeof window !== "undefined") {
+    // eslint-disable-next-line no-console
+    console.info("[usePersonalization] guest =", guest);
+  }
+
 
   return useMemo<Personalization>(() => {
     if (!guest) {
