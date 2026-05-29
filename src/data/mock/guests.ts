@@ -44,4 +44,16 @@ export const MOCK_GUESTS: Guest[] = [
     group: "friends",
     maxGuests: 2,
   },
+  {
+    id: "royal01",
+    invitationId: "ishaan-weds-myra",
+    salutation: "Shri",
+    name: "Aditya Rathore",
+    honorific: "ji",
+    family: "Rathore Thikana, Mewar",
+    group: "vip",
+    saParivar: true,
+    maxGuests: 5,
+    greeting: "आदरणीय अतिथि",
+  },
 ];

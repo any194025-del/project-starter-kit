@@ -1,9 +1,10 @@
 import { create } from "zustand";
 import type { Guest, Rsvp, AccessState } from "@/types/guest";
 import type { InvitationDocument } from "@/types/invitation";
+import type { RuntimeOverrides } from "@/types/template";
 
 interface InvitationState {
-  // Section / playback state (Phase 1–4)
+  // Section / playback state
   currentIndex: number;
   totalSections: number;
   opened: boolean;
@@ -11,13 +12,17 @@ interface InvitationState {
   audioReady: boolean;
   scrolling: boolean;
 
-  // Phase 5: data + personalization layer
+  // Data + personalization
   invitation: InvitationDocument | null;
   guest: Guest | null;
   rsvp: Rsvp | null;
   accessState: AccessState;
   accessError?: string;
   viewedAt?: string;
+
+  // Template / theme customization (Phase 6)
+  activeTemplateId: string | null;
+  themeOverrides: RuntimeOverrides | null;
 
   // Section / playback actions
   setTotal: (n: number) => void;
@@ -34,6 +39,12 @@ interface InvitationState {
   setGuest: (g: Guest | null) => void;
   setRsvp: (r: Rsvp | null) => void;
   setAccessState: (s: AccessState, error?: string) => void;
+
+  // Template / theme actions
+  setActiveTemplateId: (id: string | null) => void;
+  setThemeOverrides: (o: RuntimeOverrides | null) => void;
+  patchThemeOverrides: (o: RuntimeOverrides) => void;
+
   reset: () => void;
 }
 
@@ -50,6 +61,8 @@ const initial = {
   accessState: "idle" as AccessState,
   accessError: undefined,
   viewedAt: undefined,
+  activeTemplateId: null,
+  themeOverrides: null,
 };
 
 export const useInvitationStore = create<InvitationState>((set, get) => ({
@@ -73,10 +86,29 @@ export const useInvitationStore = create<InvitationState>((set, get) => ({
   setGuest: (g) => set({ guest: g }),
   setRsvp: (r) => set({ rsvp: r }),
   setAccessState: (s, error) => set({ accessState: s, accessError: error }),
+
+  setActiveTemplateId: (id) => set({ activeTemplateId: id }),
+  setThemeOverrides: (o) => set({ themeOverrides: o }),
+  patchThemeOverrides: (o) =>
+    set((prev) => ({
+      themeOverrides: {
+        ...(prev.themeOverrides ?? {}),
+        ...o,
+        tokens: { ...(prev.themeOverrides?.tokens ?? {}), ...(o.tokens ?? {}) },
+        typography: { ...(prev.themeOverrides?.typography ?? {}), ...(o.typography ?? {}) },
+        motion: { ...(prev.themeOverrides?.motion ?? {}), ...(o.motion ?? {}) },
+        layout: { ...(prev.themeOverrides?.layout ?? {}), ...(o.layout ?? {}) },
+      },
+    })),
+
   reset: () => set({ ...initial }),
 }));
 
-// Convenience selectors (keeps re-renders narrow).
+// Convenience selectors
 export const selectGuest = (s: InvitationState) => s.guest;
 export const selectInvitation = (s: InvitationState) => s.invitation;
 export const selectAccess = (s: InvitationState) => s.accessState;
+export const selectTheme = (s: InvitationState) => ({
+  activeTemplateId: s.activeTemplateId,
+  themeOverrides: s.themeOverrides,
+});

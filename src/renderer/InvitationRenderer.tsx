@@ -1,9 +1,13 @@
 import { useEffect, useMemo, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
 import { extractSections } from "./loadInvitation";
-import { resolveSectionComponent } from "./sectionRegistry";
+import { resolveSectionFor } from "./sectionOverrides";
 import { buildTokens, personalizeData } from "./personalize";
-import type { InvitationDocument, InvitationSection } from "@/types/invitation";
+import type {
+  InvitationDocument,
+  InvitationSection,
+  BackgroundConfig,
+} from "@/types/invitation";
 import type { Guest } from "@/types/guest";
 import { useInvitationStore } from "@/context/invitationStore";
 import { SectionContainer } from "@/components/layout/SectionContainer";
@@ -14,11 +18,11 @@ import { MusicButton } from "@/components/audio/MusicButton";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { RsvpButton } from "@/components/rsvp/RsvpButton";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { ThemeProvider, useTheme } from "@/theme/ThemeProvider";
+import { getTemplate } from "@/templates/registry";
 
 interface Props {
-  /** Already-resolved invitation document (from a route loader / service). */
   document: InvitationDocument;
-  /** Optional resolved guest. Personalisation gracefully degrades when absent. */
   guest?: Guest | null;
 }
 
@@ -50,62 +54,91 @@ function preloadImages(urls: string[]) {
   }
 }
 
+function mergeBackground(
+  base: BackgroundConfig | undefined,
+  per: BackgroundConfig | undefined,
+  section: BackgroundConfig | undefined,
+): BackgroundConfig | undefined {
+  if (!base && !per && !section) return undefined;
+  return { ...(base ?? {}), ...(per ?? {}), ...(section ?? {}) };
+}
+
 /**
- * Pure renderer — consumes resolved data, does not fetch.
- * Route loaders (or external orchestration) call the service layer and pass
- * results in via props. The store is hydrated from props so deep components
- * can use `usePersonalization()` and `useAnalytics()` without prop drilling.
+ * Pure renderer. Hydrates the store SYNCHRONOUSLY (during render, guarded by
+ * a ref) so deep components like SplashSection's `usePersonalization()` read
+ * the resolved guest on first paint — fixes the Phase 5 hydration flicker.
  */
 export function InvitationRenderer({ document, guest = null }: Props) {
+  // --- Synchronous store hydration (before children render) ---
+  const hydratedFor = useRef<string | null>(null);
+  const key = `${document.id}:${guest?.id ?? "anon"}`;
+  if (hydratedFor.current !== key) {
+    hydratedFor.current = key;
+    const store = useInvitationStore.getState();
+    store.setInvitation(document);
+    store.setGuest(guest);
+    store.setAccessState("ready");
+    store.setActiveTemplateId(document.templateId);
+    store.setThemeOverrides(null); // reset per-invitation customisation
+  }
+
+  return (
+    <ThemeProvider templateId={document.templateId}>
+      <RendererBody document={document} guest={guest} />
+    </ThemeProvider>
+  );
+}
+
+function RendererBody({ document, guest }: Props) {
   const setTotal = useInvitationStore((s) => s.setTotal);
-  const setInvitation = useInvitationStore((s) => s.setInvitation);
-  const setGuest = useInvitationStore((s) => s.setGuest);
-  const setAccessState = useInvitationStore((s) => s.setAccessState);
   const currentIndex = useInvitationStore((s) => s.currentIndex);
   const opened = useInvitationStore((s) => s.opened);
+  const activeTemplateId = useInvitationStore((s) => s.activeTemplateId);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   useSwipeNavigation(rootRef);
   const { track } = useAnalytics();
 
-  // Hydrate global store from props.
-  useEffect(() => {
-    setInvitation(document);
-    setGuest(guest);
-    setAccessState("ready");
-  }, [document, guest, setInvitation, setGuest, setAccessState]);
+  const theme = useTheme();
+  const template = useMemo(
+    () => getTemplate(activeTemplateId ?? document.templateId),
+    [activeTemplateId, document.templateId],
+  );
 
   const sections: InvitationSection[] = useMemo(
     () => extractSections(document),
     [document],
   );
 
-  // Renderer-driven personalization: interpolate `{{token}}` placeholders
-  // in every section's data, once per (document, guest) pair. Sections
-  // remain template-agnostic — they just render their data.
   const personalisedSections = useMemo<InvitationSection[]>(() => {
-    const tokens = buildTokens(document, guest);
-    return sections.map((s) => ({ ...s, data: personalizeData(s.data, tokens) }));
-  }, [sections, document, guest]);
+    const tokens = buildTokens(document, guest ?? null);
+    return sections.map((s) => {
+      const motionPerType = theme.motion.perType?.[s.type];
+      const bgPerType = theme.backgrounds.perType?.[s.type];
+      return {
+        ...s,
+        data: personalizeData(s.data, tokens),
+        transition: s.transition ?? motionPerType ?? theme.motion.defaultTransition,
+        background: mergeBackground(theme.backgrounds.base, bgPerType, s.background),
+      };
+    });
+  }, [sections, document, guest, theme]);
 
   useEffect(() => {
     setTotal(sections.length);
   }, [sections.length, setTotal]);
 
-  // Section-view analytics
   useEffect(() => {
     if (!opened) return;
     const s = sections[currentIndex];
     if (s) track("section_viewed", { type: s.type, index: currentIndex });
   }, [opened, currentIndex, sections, track]);
 
-  // Fire opened event once
   useEffect(() => {
     if (opened) track("invitation_opened");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [opened]);
 
-  // Progressive preload: current + neighbours
   useEffect(() => {
     if (sections.length === 0) return;
     const targets = [
@@ -118,20 +151,23 @@ export function InvitationRenderer({ document, guest = null }: Props) {
 
   const safeIndex = Math.min(currentIndex, personalisedSections.length - 1);
   const active = personalisedSections[safeIndex];
-  const SectionComponent = active ? resolveSectionComponent(active.type) : null;
+  const SectionComponent = active ? resolveSectionFor(template, active.type) : null;
 
   return (
     <AudioProvider src={document.meta.audioUrl || undefined}>
       <div
         ref={rootRef}
-        className="relative mx-auto h-[100dvh] w-full max-w-[480px] overflow-hidden bg-black select-none"
-        style={{ touchAction: "pan-y" }}
+        className="relative mx-auto h-[100dvh] w-full max-w-[480px] overflow-hidden select-none"
+        style={{
+          touchAction: "pan-y",
+          background: "var(--inv-bg)",
+        }}
       >
         <AnimatePresence mode="wait" initial={false}>
           {active && SectionComponent ? (
             <PageTransition
               key={active.key}
-              preset={active.transition ?? "cinematicFade"}
+              preset={active.transition ?? theme.motion.defaultTransition}
               className="absolute inset-0"
             >
               <SectionContainer background={active.background}>
