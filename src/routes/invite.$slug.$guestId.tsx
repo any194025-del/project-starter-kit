@@ -14,11 +14,12 @@ const personalisedQuery = (slug: string, guestId: string) =>
       const doc = await invitationService.getBySlug(slug);
       try {
         const guest = await guestService.getById(doc.id, guestId);
+        // eslint-disable-next-line no-console
+        console.info("[invite] resolved guest", { slug, guestId, guest });
         return { doc, guest };
-      } catch {
-        // Graceful fallback: render generic invitation instead of crashing
-        // when a guest token is invalid/expired. The renderer still uses
-        // its built-in "Honoured Guest" personalization fallback.
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn("[invite] guest lookup failed", { slug, guestId, error: e });
         return { doc, guest: null };
       }
     },
