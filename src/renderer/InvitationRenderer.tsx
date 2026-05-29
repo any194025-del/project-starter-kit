@@ -80,6 +80,18 @@ export function InvitationRenderer({ document, guest = null }: Props) {
     store.setAccessState("ready");
     store.setActiveTemplateId(document.templateId);
     store.setThemeOverrides(null); // reset per-invitation customisation
+    // CRITICAL: zustand store is a global singleton. Across route swaps
+    // (e.g. /invite/$slug -> /invite/$slug/$guestId) the renderer remounts
+    // but `opened` / `currentIndex` would otherwise persist from the
+    // previous visit and cause the cinematic splash to be skipped on first
+    // paint. Reset playback state deterministically so the intro always
+    // plays first for the (document, guest) pair.
+    useInvitationStore.setState({
+      currentIndex: 0,
+      opened: false,
+      audioPlaying: false,
+      scrolling: false,
+    });
   }
 
   return (

@@ -29,6 +29,7 @@ export function SplashSection({ section }: SectionComponentProps) {
   const [exiting, setExiting] = useState(false);
 
   const handleOpen = async () => {
+    if (exiting || opened) return; // guard against double-trigger / re-entry
     // Audio MUST start only from this user gesture
     await play();
     setExiting(true);
