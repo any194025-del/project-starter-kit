@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as InviteSlugRouteImport } from './routes/invite.$slug'
+import { Route as InviteSlugIndexRouteImport } from './routes/invite.$slug.index'
 import { Route as InviteSlugGuestIdRouteImport } from './routes/invite.$slug.$guestId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const InviteSlugRoute = InviteSlugRouteImport.update({
   path: '/invite/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const InviteSlugIndexRoute = InviteSlugIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => InviteSlugRoute,
+} as any)
 const InviteSlugGuestIdRoute = InviteSlugGuestIdRouteImport.update({
   id: '/$guestId',
   path: '/$guestId',
@@ -33,24 +39,31 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/invite/$slug': typeof InviteSlugRouteWithChildren
   '/invite/$slug/$guestId': typeof InviteSlugGuestIdRoute
+  '/invite/$slug/': typeof InviteSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/invite/$slug': typeof InviteSlugRouteWithChildren
   '/invite/$slug/$guestId': typeof InviteSlugGuestIdRoute
+  '/invite/$slug': typeof InviteSlugIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/invite/$slug': typeof InviteSlugRouteWithChildren
   '/invite/$slug/$guestId': typeof InviteSlugGuestIdRoute
+  '/invite/$slug/': typeof InviteSlugIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/invite/$slug' | '/invite/$slug/$guestId'
+  fullPaths: '/' | '/invite/$slug' | '/invite/$slug/$guestId' | '/invite/$slug/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/invite/$slug' | '/invite/$slug/$guestId'
-  id: '__root__' | '/' | '/invite/$slug' | '/invite/$slug/$guestId'
+  to: '/' | '/invite/$slug/$guestId' | '/invite/$slug'
+  id:
+    | '__root__'
+    | '/'
+    | '/invite/$slug'
+    | '/invite/$slug/$guestId'
+    | '/invite/$slug/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -74,6 +87,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InviteSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/invite/$slug/': {
+      id: '/invite/$slug/'
+      path: '/'
+      fullPath: '/invite/$slug/'
+      preLoaderRoute: typeof InviteSlugIndexRouteImport
+      parentRoute: typeof InviteSlugRoute
+    }
     '/invite/$slug/$guestId': {
       id: '/invite/$slug/$guestId'
       path: '/$guestId'
@@ -86,10 +106,12 @@ declare module '@tanstack/react-router' {
 
 interface InviteSlugRouteChildren {
   InviteSlugGuestIdRoute: typeof InviteSlugGuestIdRoute
+  InviteSlugIndexRoute: typeof InviteSlugIndexRoute
 }
 
 const InviteSlugRouteChildren: InviteSlugRouteChildren = {
   InviteSlugGuestIdRoute: InviteSlugGuestIdRoute,
+  InviteSlugIndexRoute: InviteSlugIndexRoute,
 }
 
 const InviteSlugRouteWithChildren = InviteSlugRoute._addFileChildren(
@@ -103,3 +125,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

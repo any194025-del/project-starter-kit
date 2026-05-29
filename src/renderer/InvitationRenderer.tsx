@@ -18,6 +18,7 @@ import { MusicButton } from "@/components/audio/MusicButton";
 import { useSwipeNavigation } from "@/hooks/useSwipeNavigation";
 import { RsvpButton } from "@/components/rsvp/RsvpButton";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { PersonalizationProvider } from "@/hooks/usePersonalization";
 import { ThemeProvider, useTheme } from "@/theme/ThemeProvider";
 import { getTemplate } from "@/templates/registry";
 
@@ -96,7 +97,9 @@ export function InvitationRenderer({ document, guest = null }: Props) {
 
   return (
     <ThemeProvider templateId={document.templateId}>
-      <RendererBody document={document} guest={guest} />
+      <PersonalizationProvider guest={guest}>
+        <RendererBody document={document} guest={guest} />
+      </PersonalizationProvider>
     </ThemeProvider>
   );
 }
