@@ -12,8 +12,15 @@ const personalisedQuery = (slug: string, guestId: string) =>
     queryKey: ["invitation", slug, "guest", guestId],
     queryFn: async () => {
       const doc = await invitationService.getBySlug(slug);
-      const guest = await guestService.getById(doc.id, guestId);
-      return { doc, guest };
+      try {
+        const guest = await guestService.getById(doc.id, guestId);
+        return { doc, guest };
+      } catch {
+        // Graceful fallback: render generic invitation instead of crashing
+        // when a guest token is invalid/expired. The renderer still uses
+        // its built-in "Honoured Guest" personalization fallback.
+        return { doc, guest: null };
+      }
     },
   });
 
