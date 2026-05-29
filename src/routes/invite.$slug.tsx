@@ -78,18 +78,16 @@ function InvitationOnlyRoute() {
   return (
     <main className="min-h-[100dvh] w-full bg-black">
       <InvitationRenderer document={data.doc} guest={data.guest} />
-      {import.meta.env.DEV ? (
-        <div className="fixed bottom-2 left-1/2 -translate-x-1/2 z-50 flex gap-2 text-[10px]">
-          <Link
-            to="/invite/$slug/$guestId"
-            params={{ slug, guestId: "gj28ak" }}
-            className="rounded-full bg-white/10 px-3 py-1 text-amber-100 backdrop-blur"
-            onClick={() => router.invalidate()}
-          >
-            preview as guest
-          </Link>
-        </div>
-      ) : null}
+      <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-50 flex gap-2 text-[10px] uppercase tracking-[0.3em]">
+        <Link
+          to="/invite/$slug/$guestId"
+          params={{ slug, guestId: "gj28ak" }}
+          className="rounded-full border border-amber-100/30 bg-black/40 px-3 py-1 text-amber-100 backdrop-blur"
+          onClick={() => router.invalidate()}
+        >
+          Preview as Guest
+        </Link>
+      </div>
     </main>
   );
 }
