@@ -44,14 +44,14 @@ export function ThemePanel() {
                 type="color"
                 value={colors[f.key] ?? "#000000"}
                 onChange={(e) =>
-                  patch({ tokens: { colors: { [f.key]: e.target.value } } } as RuntimeOverrides)
+                  patch({ tokens: { colors: { [f.key]: e.target.value } } } as unknown as RuntimeOverrides)
                 }
                 className="h-8 w-12 cursor-pointer rounded border border-border/40 bg-transparent"
               />
               <input
                 value={colors[f.key] ?? ""}
                 onChange={(e) =>
-                  patch({ tokens: { colors: { [f.key]: e.target.value } } } as RuntimeOverrides)
+                  patch({ tokens: { colors: { [f.key]: e.target.value } } } as unknown as RuntimeOverrides)
                 }
                 placeholder="#000000"
                 className="flex-1 rounded border border-border/40 bg-transparent px-2 py-1 text-xs"
@@ -70,7 +70,7 @@ export function ThemePanel() {
           max={1.5}
           step={0.05}
           value={[motion.intensity ?? 1]}
-          onValueChange={([v]) => patch({ motion: { intensity: v } } as RuntimeOverrides)}
+          onValueChange={([v]) => patch({ motion: { intensity: v } } as unknown as RuntimeOverrides)}
         />
       </div>
     </div>

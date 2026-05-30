@@ -18,7 +18,7 @@ export const PRESETS: BuilderPreset[] = [
     templateId: "cinematic",
     themeOverrides: {
       tokens: { colors: { accent: "#d4a857", gold: "#f0d78c" } },
-    } as RuntimeOverrides,
+    } as unknown as RuntimeOverrides,
   },
   {
     id: "royal",
@@ -27,7 +27,7 @@ export const PRESETS: BuilderPreset[] = [
     templateId: "royal",
     themeOverrides: {
       tokens: { colors: { accent: "#c9a84c", bg: "#0d0820" } },
-    } as RuntimeOverrides,
+    } as unknown as RuntimeOverrides,
   },
   {
     id: "minimal",
@@ -37,7 +37,7 @@ export const PRESETS: BuilderPreset[] = [
     themeOverrides: {
       tokens: { colors: { accent: "#b8a48a" } },
       motion: { intensity: 0.5 },
-    } as RuntimeOverrides,
+    } as unknown as RuntimeOverrides,
   },
   {
     id: "floral",
@@ -46,6 +46,6 @@ export const PRESETS: BuilderPreset[] = [
     templateId: "floral",
     themeOverrides: {
       tokens: { colors: { accent: "#e07a8a" } },
-    } as RuntimeOverrides,
+    } as unknown as RuntimeOverrides,
   },
 ];
