@@ -229,7 +229,7 @@ export const useBuilderStore = create<BuilderState>((set, get) => ({
         motion: { ...(s.themeOverrides?.motion ?? {}), ...(o.motion ?? {}) },
         typography: { ...(s.themeOverrides?.typography ?? {}), ...(o.typography ?? {}) },
         layout: { ...(s.themeOverrides?.layout ?? {}), ...(o.layout ?? {}) },
-      },
+      } as RuntimeOverrides,
     })),
 
   selectSection: (selectedSectionKey) => set({ selectedSectionKey }),
