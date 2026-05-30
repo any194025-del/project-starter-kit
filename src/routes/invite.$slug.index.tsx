@@ -29,6 +29,13 @@ function InvitationOnlyRoute() {
         >
           Preview as Guest
         </Link>
+        <Link
+          to="/builder/$invitationId"
+          params={{ invitationId: slug }}
+          className="rounded-full border border-amber-100/30 bg-black/40 px-3 py-1 text-amber-100 backdrop-blur"
+        >
+          Open Studio
+        </Link>
       </div>
     </main>
   );

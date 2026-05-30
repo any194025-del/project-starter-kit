@@ -10,20 +10,30 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BuilderIndexRouteImport } from './routes/builder.index'
 import { Route as InviteSlugRouteImport } from './routes/invite.$slug'
+import { Route as BuilderInvitationIdRouteImport } from './routes/builder.$invitationId'
 import { Route as InviteSlugIndexRouteImport } from './routes/invite.$slug.index'
 import { Route as InviteSlugGuestIdRouteImport } from './routes/invite.$slug.$guestId'
-import { Route as BuilderIndexRouteImport } from './routes/builder.index'
-import { Route as BuilderInvitationIdRouteImport } from './routes/builder.$invitationId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuilderIndexRoute = BuilderIndexRouteImport.update({
+  id: '/builder/',
+  path: '/builder/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InviteSlugRoute = InviteSlugRouteImport.update({
   id: '/invite/$slug',
   path: '/invite/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuilderInvitationIdRoute = BuilderInvitationIdRouteImport.update({
+  id: '/builder/$invitationId',
+  path: '/builder/$invitationId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InviteSlugIndexRoute = InviteSlugIndexRouteImport.update({
@@ -36,71 +46,61 @@ const InviteSlugGuestIdRoute = InviteSlugGuestIdRouteImport.update({
   path: '/$guestId',
   getParentRoute: () => InviteSlugRoute,
 } as any)
-const BuilderIndexRoute = BuilderIndexRouteImport.update({
-  id: '/builder/',
-  path: '/builder/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BuilderInvitationIdRoute = BuilderInvitationIdRouteImport.update({
-  id: '/builder/$invitationId',
-  path: '/builder/$invitationId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/builder/$invitationId': typeof BuilderInvitationIdRoute
   '/invite/$slug': typeof InviteSlugRouteWithChildren
+  '/builder/': typeof BuilderIndexRoute
   '/invite/$slug/$guestId': typeof InviteSlugGuestIdRoute
   '/invite/$slug/': typeof InviteSlugIndexRoute
-  '/builder/$invitationId': typeof BuilderInvitationIdRoute
-  '/builder/': typeof BuilderIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/invite/$slug/$guestId': typeof InviteSlugGuestIdRoute
-  '/invite/$slug': typeof InviteSlugIndexRoute
   '/builder/$invitationId': typeof BuilderInvitationIdRoute
   '/builder': typeof BuilderIndexRoute
+  '/invite/$slug/$guestId': typeof InviteSlugGuestIdRoute
+  '/invite/$slug': typeof InviteSlugIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/builder/$invitationId': typeof BuilderInvitationIdRoute
   '/invite/$slug': typeof InviteSlugRouteWithChildren
+  '/builder/': typeof BuilderIndexRoute
   '/invite/$slug/$guestId': typeof InviteSlugGuestIdRoute
   '/invite/$slug/': typeof InviteSlugIndexRoute
-  '/builder/$invitationId': typeof BuilderInvitationIdRoute
-  '/builder/': typeof BuilderIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/builder/$invitationId'
     | '/invite/$slug'
+    | '/builder/'
     | '/invite/$slug/$guestId'
     | '/invite/$slug/'
-    | '/builder/$invitationId'
-    | '/builder/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/invite/$slug/$guestId'
-    | '/invite/$slug'
     | '/builder/$invitationId'
     | '/builder'
+    | '/invite/$slug/$guestId'
+    | '/invite/$slug'
   id:
     | '__root__'
     | '/'
+    | '/builder/$invitationId'
     | '/invite/$slug'
+    | '/builder/'
     | '/invite/$slug/$guestId'
     | '/invite/$slug/'
-    | '/builder/$invitationId'
-    | '/builder/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  InviteSlugRoute: typeof InviteSlugRouteWithChildren
   BuilderInvitationIdRoute: typeof BuilderInvitationIdRoute
+  InviteSlugRoute: typeof InviteSlugRouteWithChildren
   BuilderIndexRoute: typeof BuilderIndexRoute
 }
 
@@ -113,11 +113,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/builder/': {
+      id: '/builder/'
+      path: '/builder'
+      fullPath: '/builder/'
+      preLoaderRoute: typeof BuilderIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/invite/$slug': {
       id: '/invite/$slug'
       path: '/invite/$slug'
       fullPath: '/invite/$slug'
       preLoaderRoute: typeof InviteSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/builder/$invitationId': {
+      id: '/builder/$invitationId'
+      path: '/builder/$invitationId'
+      fullPath: '/builder/$invitationId'
+      preLoaderRoute: typeof BuilderInvitationIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/invite/$slug/': {
@@ -133,20 +147,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/invite/$slug/$guestId'
       preLoaderRoute: typeof InviteSlugGuestIdRouteImport
       parentRoute: typeof InviteSlugRoute
-    }
-    '/builder/$invitationId': {
-      id: '/builder/$invitationId'
-      path: '/builder/$invitationId'
-      fullPath: '/builder/$invitationId'
-      preLoaderRoute: typeof BuilderInvitationIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/builder/': {
-      id: '/builder/'
-      path: '/builder'
-      fullPath: '/builder/'
-      preLoaderRoute: typeof BuilderIndexRouteImport
-      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -167,20 +167,10 @@ const InviteSlugRouteWithChildren = InviteSlugRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  InviteSlugRoute: InviteSlugRouteWithChildren,
   BuilderInvitationIdRoute: BuilderInvitationIdRoute,
+  InviteSlugRoute: InviteSlugRouteWithChildren,
   BuilderIndexRoute: BuilderIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
