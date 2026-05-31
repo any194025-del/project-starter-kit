@@ -33,7 +33,7 @@ export function ensureInvitationSeeded(slug: string): Promise<string | null> {
         slug,
         template_id: mock.templateId,
         status: "published",
-        document: { ...mock, id: slug },
+        document: { ...mock, id: slug } as unknown as never,
         published_at: new Date().toISOString(),
       })
       .select("id")
