@@ -14,7 +14,184 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      guests: {
+        Row: {
+          created_at: string
+          family: string | null
+          greeting: string | null
+          group_key: string | null
+          honorific: string | null
+          id: string
+          invitation_id: string
+          max_guests: number | null
+          name: string
+          note: string | null
+          sa_parivar: boolean
+          salutation: string | null
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          family?: string | null
+          greeting?: string | null
+          group_key?: string | null
+          honorific?: string | null
+          id?: string
+          invitation_id: string
+          max_guests?: number | null
+          name: string
+          note?: string | null
+          sa_parivar?: boolean
+          salutation?: string | null
+          token: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          family?: string | null
+          greeting?: string | null
+          group_key?: string | null
+          honorific?: string | null
+          id?: string
+          invitation_id?: string
+          max_guests?: number | null
+          name?: string
+          note?: string | null
+          sa_parivar?: boolean
+          salutation?: string | null
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guests_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "invitations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invitation_drafts: {
+        Row: {
+          document: Json
+          invitation_id: string
+          theme_overrides: Json | null
+          updated_at: string
+        }
+        Insert: {
+          document: Json
+          invitation_id: string
+          theme_overrides?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          document?: Json
+          invitation_id?: string
+          theme_overrides?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitation_drafts_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: true
+            referencedRelation: "invitations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invitations: {
+        Row: {
+          created_at: string
+          document: Json
+          id: string
+          owner_token: string | null
+          published_at: string | null
+          slug: string
+          status: string
+          template_id: string
+          theme_overrides: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          document: Json
+          id?: string
+          owner_token?: string | null
+          published_at?: string | null
+          slug: string
+          status?: string
+          template_id?: string
+          theme_overrides?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          document?: Json
+          id?: string
+          owner_token?: string | null
+          published_at?: string | null
+          slug?: string
+          status?: string
+          template_id?: string
+          theme_overrides?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rsvps: {
+        Row: {
+          created_at: string
+          guest_count: number
+          guest_id: string
+          id: string
+          invitation_id: string
+          message: string | null
+          responded_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          guest_count?: number
+          guest_id: string
+          id?: string
+          invitation_id: string
+          message?: string | null
+          responded_at?: string
+          status: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          guest_count?: number
+          guest_id?: string
+          id?: string
+          invitation_id?: string
+          message?: string | null
+          responded_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rsvps_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rsvps_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "invitations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
